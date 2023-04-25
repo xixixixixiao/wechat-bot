@@ -3,8 +3,30 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\wechat.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\wechat.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+    <PackageReference Include="FlaUI.Core" Version="4.0.0" />
+    <PackageReference Include="FlaUI.UIA3" Version="4.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Prism.Core" Version="8.1.97" />
+    <PackageReference Include="Prism.DryIoc" Version="8.1.97" />
+    <PackageReference Include="Prism.Wpf" Version="8.1.97" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\wechat.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
 
 </Project>
