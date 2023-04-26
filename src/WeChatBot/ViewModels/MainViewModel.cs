@@ -244,6 +244,29 @@ public partial class MainViewModel
     }
 
     /// <summary>
+    /// Send all messages.
+    /// </summary>
+    [RelayCommand]
+    public async Task SendAllMessagesAsync()
+    {
+        if (_application is null)
+        {
+            NotifyWarning("Does not attach Wechat.");
+            return;
+        }
+
+        var wakaTimeMessage = await GetWakaTimeMessageAsync();
+        var weatherMessage = await GetWeatherMessageAsync();
+        var dailyNewsMessage = await GetDailyNewsMessageAsync();
+
+        await SendMessageAsync(wakaTimeMessage);
+        await Task.Delay(TimeSpan.FromSeconds(1));
+        await SendMessageAsync(weatherMessage);
+        await Task.Delay(TimeSpan.FromSeconds(1));
+        await SendMessageAsync(dailyNewsMessage);
+    }
+
+    /// <summary>
     /// Send the leaderboard message of Waka Time.
     /// </summary>
     [RelayCommand]
@@ -298,38 +321,47 @@ public partial class MainViewModel
     }
 
     /// <summary>
-    /// Send message to Wechat.
+    /// Send a message to Wechat.
     /// </summary>
-    /// <param name="message"></param>
-    /// <returns></returns>
+    /// <param name="message">The message will be sent to Wechat.</param>
     private async Task SendMessageAsync(string message)
     {
-        var count = 0;
-        while (count++ <= 5)
+        using var automation = new UIA3Automation();
+        var window = _application.GetMainWindow(automation);
+
+        var messageTextBox = window.FindFirstDescendant(cf => cf.ByName("Enter")).AsTextBox();
+        var sendMessageButton = window
+            .FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
+            .FirstOrDefault(control => control.Name == "sendBtn");
+
+        if (messageTextBox is null)
         {
-            using var automation = new UIA3Automation();
-            var window = _application.GetMainWindow(automation);
-
-            var messageTextBox = window.FindFirstDescendant(cf => cf.ByName("Enter")).AsTextBox();
-            var sendMessageButton = window
-                .FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
-                .FirstOrDefault(control => control.Name == "sendBtn");
-
-            if (messageTextBox is null || sendMessageButton is null)
-            {
-                Warning("Cannot find the Message box.");
-                Warning("Cannot find the `Send` button.");
-                await Task.Delay(TimeSpan.FromSeconds(5));
-                continue;
-            }
-
+            Warning("Cannot find the Message box.");
+            Warning("Cannot find the `Send` button.");
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            Clipboard.SetText(message);
+            Clipboard.Flush();
+            Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.KEY_A);
+            Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.KEY_V);
+        }
+        else
+        {
             messageTextBox.Focus();
-            messageTextBox.Click();
+            messageTextBox.Click(true);
             Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.KEY_A);
             messageTextBox.Enter(message);
+        }
+
+        await Task.Delay(TimeSpan.FromSeconds(2));
+        if (sendMessageButton is null)
+        {
+            Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.KEY_S);
+        }
+        else
+        {
             await Task.Delay(TimeSpan.FromSeconds(2));
-            sendMessageButton.Click();
-            return;
+            sendMessageButton.Click(true);
+            messageTextBox?.Click(true);
         }
     }
 

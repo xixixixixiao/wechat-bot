@@ -42,6 +42,7 @@
                 <StackPanel>
                     <Button Command="{Binding AttachWechatCommand}" Content="Attach Wechat" />
                     <Button Command="{Binding SendTestMessageCommand}" Content="Send Test Message" />
+                    <Button Command="{Binding SendAllMessagesCommand}" Content="Send All Messages" />
                     <Button Command="{Binding StartTaskCommand}" Content="Start Task" />
                     <Button Command="{Binding StopTaskCommand}" Content="Stop Task" />
                 </StackPanel>
