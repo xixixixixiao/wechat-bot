@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -122,6 +124,14 @@ public partial class MainViewModel
                 }
             }
         }
+
+        if (EnableWhatTime)
+        {
+            if (minute == 0)
+            {
+                await SendWhatTimeMessageAsync();
+            }
+        }
     }
 
     /// <summary>
@@ -171,6 +181,12 @@ public partial class MainViewModel
     /// </summary>
     [ObservableProperty]
     private ObservableCollection<WeatherCity> _cities = new();
+
+    /// <summary>
+    /// Whether to enable sending What Time is it.
+    /// </summary>
+    [ObservableProperty]
+    private bool _enableWhatTime = true;
 
     /// <summary>
     /// Attach the Wechat.exe.
@@ -264,6 +280,8 @@ public partial class MainViewModel
         await SendMessageAsync(weatherMessage);
         await Task.Delay(TimeSpan.FromSeconds(1));
         await SendMessageAsync(dailyNewsMessage);
+        await Task.Delay(TimeSpan.FromSeconds(1));
+        await SendWhatTimeMessageAsync();
     }
 
     /// <summary>
@@ -321,6 +339,67 @@ public partial class MainViewModel
     }
 
     /// <summary>
+    /// Send What Time is is message.
+    /// </summary>
+    [RelayCommand]
+    public async Task SendWhatTimeMessageAsync()
+    {
+        if (_application is null)
+        {
+            NotifyWarning("Does not attach Wechat.");
+            return;
+        }
+
+        var temp = Path.GetTempPath();
+        var file = $"{DateTime.Now:hh}.gif";
+        var path = Path.Combine(temp, file);
+        if (!File.Exists(path))
+        {
+            var uri = $"Assets/WhatTime/{file}";
+            var info = Application.GetResourceStream(new Uri(uri, UriKind.Relative))?.Stream ?? Stream.Null;
+            await using var fileStream = File.Create(path);
+            info.Seek(0, SeekOrigin.Begin);
+            await info.CopyToAsync(fileStream);
+        }
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            Debug("Set file to Clipboard.");
+            Clipboard.SetFileDropList(new StringCollection { path });
+        });
+        using var automation = new UIA3Automation();
+        var window = _application.GetMainWindow(automation);
+
+        var messageTextBox = GetMessageTextBox(window);
+        var sendMessageButton = GetSendMessageButton(window);
+
+        if (messageTextBox is null)
+        {
+            Warning("Cannot find the Message box.");
+            Warning("Cannot find the `Send` button.");
+        }
+        else
+        {
+            messageTextBox.Focus();
+            messageTextBox.Click(true);
+        }
+
+        Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.KEY_A);
+        Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.KEY_V);
+        await Task.Delay(TimeSpan.FromSeconds(2));
+        if (sendMessageButton is null)
+        {
+            Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.KEY_S);
+        }
+        else
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            sendMessageButton.Click(true);
+            messageTextBox?.Click(true);
+        }
+    }
+
+    /// <summary>
     /// Send a message to Wechat.
     /// </summary>
     /// <param name="message">The message will be sent to Wechat.</param>
@@ -329,10 +408,8 @@ public partial class MainViewModel
         using var automation = new UIA3Automation();
         var window = _application.GetMainWindow(automation);
 
-        var messageTextBox = window.FindFirstDescendant(cf => cf.ByName("Enter")).AsTextBox();
-        var sendMessageButton = window
-            .FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
-            .FirstOrDefault(control => control.Name == "sendBtn");
+        var messageTextBox = GetMessageTextBox(window);
+        var sendMessageButton = GetSendMessageButton(window);
 
         if (messageTextBox is null)
         {
@@ -408,7 +485,7 @@ public partial class MainViewModel
         // Your secret api key
         // waka_fd6ecf87-8e30-4399-b7b1-10889627be41
         //
-        const string secret = "waka_fd6ecf87-8e30-4399-b7b1-10889627be41";
+        const string secret = "waka_dfbb8cc6-cf6e-4a57-bdef-a246b3f85a96";
         const string baseUrl = "https://wakatime.com";
         const string path = "/api/v1/users/current/leaderboards/";
         const string id = "47261ca3-db4e-4055-9954-a324de62c618";
@@ -560,6 +637,19 @@ public partial class MainViewModel
     #endregion
 
     #region Utilities
+
+    private static TextBox GetMessageTextBox(AutomationElement window)
+    {
+        return window.FindFirstDescendant(cf => cf.ByName("Enter")).AsTextBox();
+    }
+
+    private static Button GetSendMessageButton(AutomationElement window)
+    {
+        return window
+            .FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
+            .FirstOrDefault(control => control.Name == "sendBtn")
+            ?.AsButton();
+    }
 
     private static void AddFirefoxHeaders(HttpRequestMessage request)
     {

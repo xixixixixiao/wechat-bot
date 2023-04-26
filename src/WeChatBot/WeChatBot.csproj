@@ -25,6 +25,18 @@
 
   <ItemGroup>
     <Resource Include="Assets\wechat.png" />
+    <Resource Include="Assets\WhatTime\01.gif" />
+    <Resource Include="Assets\WhatTime\02.gif" />
+    <Resource Include="Assets\WhatTime\03.gif" />
+    <Resource Include="Assets\WhatTime\04.gif" />
+    <Resource Include="Assets\WhatTime\05.gif" />
+    <Resource Include="Assets\WhatTime\06.gif" />
+    <Resource Include="Assets\WhatTime\07.gif" />
+    <Resource Include="Assets\WhatTime\08.gif" />
+    <Resource Include="Assets\WhatTime\09.gif" />
+    <Resource Include="Assets\WhatTime\10.gif" />
+    <Resource Include="Assets\WhatTime\11.gif" />
+    <Resource Include="Assets\WhatTime\12.gif" />
   </ItemGroup>
 
 </Project>

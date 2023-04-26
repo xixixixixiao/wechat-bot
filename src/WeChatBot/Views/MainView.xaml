@@ -6,7 +6,7 @@
         xmlns:mvvm="http://prismlibrary.com/"
         xmlns:viewModels="clr-namespace:WeChatBot.ViewModels"
         Title="Wechat Bot"
-        Width="300"
+        Width="350"
         d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
         mvvm:ViewModelLocator.AutoWireViewModel="True"
         Icon="../Assets/wechat.png"
@@ -76,6 +76,14 @@
                     <CheckBox Content="Enable Daily News" IsChecked="{Binding EnableDailyNews}" />
                     <TextBox Text="{Binding DailyNewsMoment}" />
                     <Button Command="{Binding SendDailyNewsMessageCommand}" Content="Send Daily News" />
+                </StackPanel>
+            </Border>
+        </TabItem>
+        <TabItem Header="What Time">
+            <Border Padding="10">
+                <StackPanel>
+                    <CheckBox Content="Enable What Time is it" IsChecked="{Binding EnableWhatTime}" />
+                    <Button Command="{Binding SendWhatTimeMessageCommand}" Content="Send Current Time" />
                 </StackPanel>
             </Border>
         </TabItem>
