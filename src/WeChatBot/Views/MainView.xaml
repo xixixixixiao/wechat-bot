@@ -6,7 +6,7 @@
         xmlns:mvvm="http://prismlibrary.com/"
         xmlns:viewModels="clr-namespace:WeChatBot.ViewModels"
         Title="Wechat Bot"
-        Width="350"
+        Width="300"
         d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
         mvvm:ViewModelLocator.AutoWireViewModel="True"
         Icon="../Assets/wechat.png"
@@ -42,6 +42,8 @@
                 <StackPanel>
                     <Button Command="{Binding AttachWechatCommand}" Content="Attach Wechat" />
                     <Button Command="{Binding SendTestMessageCommand}" Content="Send Test Message" />
+                    <Button Command="{Binding StartTaskCommand}" Content="Start Task" />
+                    <Button Command="{Binding StopTaskCommand}" Content="Stop Task" />
                 </StackPanel>
             </Border>
         </TabItem>
@@ -60,7 +62,10 @@
                     <CheckBox Content="Enable Weather" IsChecked="{Binding EnableWeather}" />
                     <TextBox Text="{Binding WeatherMoment}" />
                     <Button Command="{Binding SendWeatherMessageCommand}" Content="Send Weather forecast" />
-                    <ListBox Height="120" ItemsSource="{Binding Cities}" />
+                    <ListBox Height="120"
+                             DisplayMemberPath="City"
+                             ItemsSource="{Binding Cities}"
+                             />
                 </StackPanel>
             </Border>
         </TabItem>
