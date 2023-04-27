@@ -61,10 +61,10 @@ public partial class MainViewModel
 
     /// <summary>
     /// The moment when sending the Daily News message.
-    /// Every day at 09:10:00.
+    /// Every day at 09:30:00.
     /// </summary>
     [ObservableProperty]
-    private string _dailyNewsMoment = "0 10 9 * * ? *";
+    private string _dailyNewsMoment = "0 30 9 * * ? *";
 
     /// <summary>
     /// Whether to enable sending What Time is it.
@@ -74,10 +74,12 @@ public partial class MainViewModel
 
     /// <summary>
     /// The moment when sending What Time is it message.
-    /// Every hour: 00/01/02/03/...
+    /// Every hour, between 08:00 AM and 11:59 PM.
+    /// Only on Monday, Tuesday, Wednesday, Thursday, and Friday.
+    /// (Make Er Miao Happy)
     /// </summary>
     [ObservableProperty]
-    private string _whatTimeMoment = "0 0 0/1 * * ? *";
+    private string _whatTimeMoment = "0 0 8-23 ? * MON,TUE,WED,THU,FRI *";
 
     /// <summary>
     /// Attach the Wechat.exe.
