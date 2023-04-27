@@ -56,10 +56,10 @@ public class WakaTimeService
 
         // Your secret api key
         // waka_00000000-0000-0000-0000-000000000000
-        const string secret = "waka_f060d0dc-b34e-41d6-a519-5a5d14465372";
+        const string secret = Constants.WAKA_TIME_SECRET;
         const string baseUrl = "https://wakatime.com";
         const string path = "/api/v1/users/current/leaderboards/";
-        const string id = "47261ca3-db4e-4055-9954-a324de62c618";
+        const string id = Constants.WAKA_TIME_LEADERBOARD;
         var request = new HttpRequestMessage(HttpMethod.Get, baseUrl + path + id);
         request.Headers.Add("Authorization", "Basic " + Base64(secret));
         var response = await _http.SendAsync(request);

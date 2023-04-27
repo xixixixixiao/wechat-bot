@@ -48,7 +48,7 @@ public class WeatherService
             return $"{live.City} {live.Temperature}℃ {live.Weather}" + umbrella;
         }
 
-        const string secret = "ac863da4ebff9b4d23556db60703e52c";
+        const string secret = Constants.AMAP_SECRET;
         const string baseUrl = "https://restapi.amap.com";
         const string path = "/v3/weather/weatherInfo";
         var results = new List<WeatherResult>();
