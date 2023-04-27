@@ -63,10 +63,6 @@
                     <CheckBox Content="Enable Weather" IsChecked="{Binding EnableWeather}" />
                     <TextBox Text="{Binding WeatherMoment}" />
                     <Button Command="{Binding SendWeatherMessageCommand}" Content="Send Weather forecast" />
-                    <ListBox Height="120"
-                             DisplayMemberPath="City"
-                             ItemsSource="{Binding Cities}"
-                             />
                 </StackPanel>
             </Border>
         </TabItem>
@@ -83,18 +79,10 @@
             <Border Padding="10">
                 <StackPanel>
                     <CheckBox Content="Enable What Time is it" IsChecked="{Binding EnableWhatTime}" />
+                    <TextBox Text="{Binding WhatTimeMoment}" />
                     <Button Command="{Binding SendWhatTimeMessageCommand}" Content="Send Current Time" />
                 </StackPanel>
             </Border>
-        </TabItem>
-        <TabItem Header="Log">
-            <TextBox Height="200"
-                     AcceptsReturn="True"
-                     BorderThickness="0"
-                     IsReadOnly="True"
-                     Text="{Binding Log}"
-                     TextWrapping="Wrap"
-                     />
         </TabItem>
     </TabControl>
 </Window>
