@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace WeChatBot.Models.WakaTime;
 
 public class Rank
 {
-    [JsonProperty("rank")]
+    [JsonPropertyName("rank")]
     public int Index { get; set; }
 
-    [JsonProperty("running_total")]
+    [JsonPropertyName("running_total")]
     public RunningTotal RunningTotal { get; set; }
 
-    [JsonProperty("user")]
+    [JsonPropertyName("user")]
     public User User { get; set; }
 }

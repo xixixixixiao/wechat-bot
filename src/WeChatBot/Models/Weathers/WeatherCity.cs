@@ -1,13 +1,12 @@
-﻿namespace WeChatBot.Models.Weathers;
+﻿using CsvHelper.Configuration.Attributes;
+
+namespace WeChatBot.Models.Weathers;
 
 public class WeatherCity
 {
+    [Index(0)]
     public string City { get; set; }
-    public string Code { get; set; }
 
-    public WeatherCity(string city, string code)
-    {
-        City = city;
-        Code = code;
-    }
+    [Index(1)]
+    public string Code { get; set; }
 }

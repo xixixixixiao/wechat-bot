@@ -1,7 +1,8 @@
 ﻿using DryIoc;
 using Quartz;
-using Serilog;
 using System.Threading.Tasks;
+using WeChatBot.MessageQueues;
+using WeChatBot.Models.Messages;
 using WeChatBot.Services;
 
 namespace WeChatBot.Jobs;
@@ -12,20 +13,10 @@ public class WeatherJob : IJob
     public async Task Execute(IJobExecutionContext context)
     {
         var container = context.JobDetail.JobDataMap["Container"] as IContainer;
-        var logger = container.Resolve<ILogger>();
-        var automateService = container.Resolve<AutomateService>();
         var weatherService = container.Resolve<WeatherService>();
-        
+        var messageQueue = container.Resolve<MessageQueue>();
         var message = await weatherService.GetMessageAsync();
-        var result = await automateService.SendTextMessageAsync(message);
 
-        if (result)
-        {
-            logger.Information("Weather sent successfully.");
-        }
-        else
-        {
-            logger.Error("Weather sent failed.");
-        }
+        messageQueue.Enqueue(new TextMessage("Weather", message));
     }
 }

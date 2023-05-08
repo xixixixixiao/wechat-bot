@@ -12,11 +12,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="FlaUI.Core" Version="4.0.0" />
     <PackageReference Include="FlaUI.UIA3" Version="4.0.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
     <PackageReference Include="Prism.Core" Version="8.1.97" />
     <PackageReference Include="Prism.DryIoc" Version="8.1.97" />
     <PackageReference Include="Prism.Wpf" Version="8.1.97" />

@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace WeChatBot.Models.WakaTime;
 
 public class User
 {
-    [JsonProperty("display_name")]
+    [JsonPropertyName("display_name")]
     public string DisplayName { get; set; }
 }

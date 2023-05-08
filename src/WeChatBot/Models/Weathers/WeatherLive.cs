@@ -1,18 +1,18 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace WeChatBot.Models.Weathers;
 
 public class WeatherLive
 {
-    [JsonProperty("province")]
+    [JsonPropertyName("province")]
     public string Province { get; set; }
 
-    [JsonProperty("city")]
+    [JsonPropertyName("city")]
     public string City { get; set; }
 
-    [JsonProperty("weather")]
+    [JsonPropertyName("weather")]
     public string Weather { get; set; }
 
-    [JsonProperty("temperature")]
+    [JsonPropertyName("temperature")]
     public string Temperature { get; set; }
 }

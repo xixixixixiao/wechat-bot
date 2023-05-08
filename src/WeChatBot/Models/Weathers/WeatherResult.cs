@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace WeChatBot.Models.Weathers;
 
 public class WeatherResult
 {
-    [JsonProperty("info")]
+    [JsonPropertyName("info")]
     public string Info { get; set; }
 
-    [JsonProperty("lives")]
+    [JsonPropertyName("lives")]
     public WeatherLive[] Lives { get; set; }
 }

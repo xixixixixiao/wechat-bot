@@ -3,6 +3,8 @@ using Quartz;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using WeChatBot.MessageQueues;
+using WeChatBot.Models.Messages;
 using WeChatBot.Services;
 
 namespace WeChatBot.Jobs;
@@ -14,9 +16,8 @@ public class DailyNewsJob : IJob
     {
         var container = context.JobDetail.JobDataMap["Container"] as IContainer;
         var logger = container.Resolve<ILogger>();
-        var automateService = container.Resolve<AutomateService>();
         var dailyNewsService = container.Resolve<DailyNewsService>();
-
+        var messageQueue = container.Resolve<MessageQueue>();
         var message = await dailyNewsService.GetMessageAsync();
 
         if (string.IsNullOrEmpty(message))
@@ -29,14 +30,6 @@ public class DailyNewsJob : IJob
             return;
         }
 
-        var result = await automateService.SendTextMessageAsync(message);
-        if (result)
-        {
-            logger.Information("Daily News sent successfully.");
-        }
-        else
-        {
-            logger.Error("Daily News sent failed.");
-        }
+        messageQueue.Enqueue(new TextMessage("Daily News", message));
     }
 }

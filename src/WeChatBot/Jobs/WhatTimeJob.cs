@@ -1,11 +1,11 @@
 ﻿using DryIoc;
 using Quartz;
-using Serilog;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using WeChatBot.Services;
+using WeChatBot.MessageQueues;
+using WeChatBot.Models.Messages;
 
 namespace WeChatBot.Jobs;
 
@@ -15,21 +15,12 @@ public class WhatTimeJob : IJob
     public async Task Execute(IJobExecutionContext context)
     {
         var container = context.JobDetail.JobDataMap["Container"] as IContainer;
-        var logger = container.Resolve<ILogger>();
-        var automateService = container.Resolve<AutomateService>();
+        var messageQueue = container.Resolve<MessageQueue>();
 
         var file = $"{DateTime.Now:hh}.gif";
         var path = await CacheGif(file);
-        var result = await automateService.SendFileMessageAsync(path);
 
-        if (result)
-        {
-            logger.Information($"send file: {path} successfully.");
-        }
-        else
-        {
-            logger.Error($"send file: {path} failed.");
-        }
+        messageQueue.Enqueue(new FileMessage(file, path));
     }
 
     public static async Task<string> CacheGif(string file)

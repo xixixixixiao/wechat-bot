@@ -1,14 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DryIoc;
+using Microsoft.Extensions.Configuration;
 using Quartz;
 using Quartz.Impl;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using WeChatBot.Jobs;
+using WeChatBot.MessageQueues;
+using WeChatBot.Models.Messages;
 using WeChatBot.Services;
 
 namespace WeChatBot.ViewModels;
@@ -16,70 +18,92 @@ namespace WeChatBot.ViewModels;
 [INotifyPropertyChanged]
 public partial class MainViewModel
 {
-    private readonly ILogger _logger;
     private readonly IContainer _container;
+    private readonly IConfiguration _configuration;
+    private readonly MessageQueue _queue;
 
     private IScheduler _scheduler;
 
-    public MainViewModel(ILogger logger, IContainer container)
+    public MainViewModel(IContainer container, IConfiguration configuration, MessageQueue queue)
     {
-        _logger = logger;
         _container = container;
+        _configuration = configuration;
+        _queue = queue;
     }
 
     /// <summary>
     /// Whether to enable sending Waka Time message.
     /// </summary>
     [ObservableProperty]
-    private bool _enableWakaTime = true;
+    private bool _enableWakaTime;
 
     /// <summary>
-    /// The moment when sending the Waka Time message.
-    /// Every day at 09:30:00.
+    /// The cron when sending the Waka Time message.
+    /// Every day at 10:30:00.
     /// </summary>
     [ObservableProperty]
-    private string _wakaTimeMoment = "0 30 9 * * ? *";
+    private string _wakaTimeCron;
 
     /// <summary>
     /// Whether to enable sending weather forecast messages.
     /// </summary>
     [ObservableProperty]
-    private bool _enableWeather = true;
+    private bool _enableWeather;
 
     /// <summary>
-    /// The moment when sending the weather forecast message.
+    /// The cron when sending the weather forecast message.
     /// Every day at 08:30:00 and 17:30:00.
     /// </summary>
     [ObservableProperty]
-    private string _weatherMoment = "0 30 8,17 * * ? *";
+    private string _weatherCron;
 
     /// <summary>
     /// Whether to enable sending Daily News messages.
     /// </summary>
     [ObservableProperty]
-    private bool _enableDailyNews = true;
+    private bool _enableDailyNews;
 
     /// <summary>
-    /// The moment when sending the Daily News message.
+    /// The cron when sending the Daily News message.
     /// Every day at 09:30:00.
     /// </summary>
     [ObservableProperty]
-    private string _dailyNewsMoment = "0 30 9 * * ? *";
+    private string _dailyNewsCron;
 
     /// <summary>
     /// Whether to enable sending What Time is it.
     /// </summary>
     [ObservableProperty]
-    private bool _enableWhatTime = true;
+    private bool _enableWhatTime;
 
     /// <summary>
-    /// The moment when sending What Time is it message.
+    /// The cron when sending What Time is it message.
     /// Every hour, between 08:00 AM and 11:59 PM.
     /// Only on Monday, Tuesday, Wednesday, Thursday, and Friday.
     /// (Make Er Miao Happy)
     /// </summary>
     [ObservableProperty]
-    private string _whatTimeMoment = "0 0 8-23 ? * MON,TUE,WED,THU,FRI *";
+    private string _whatTimeCron;
+
+    /// <summary>
+    /// Initialize view model.
+    /// </summary>
+    [RelayCommand]
+    public void Initialize()
+    {
+        _queue.Start();
+
+        var cronSection = _configuration.GetSection("Cron");
+        WakaTimeCron = cronSection.GetValue("WakaTime", "0 30 10 * * ? *");
+        WeatherCron = cronSection.GetValue("Weather", "0 30 8,17 * * ? *");
+        DailyNewsCron = cronSection.GetValue("DailyNews", "0 30 9 * * ? *");
+        WhatTimeCron = cronSection.GetValue("WhatTime", "0 0 8-23 ? * MON,TUE,WED,THU,FRI *");
+
+        EnableWakaTime = _configuration.GetValue("EnableWakaTime", true);
+        EnableWeather = _configuration.GetValue("EnableWeather", true);
+        EnableDailyNews = _configuration.GetValue("EnableDailyNews", true);
+        EnableWhatTime = _configuration.GetValue("EnableWhatTime", true);
+    }
 
     /// <summary>
     /// Attach the Wechat.exe.
@@ -120,7 +144,7 @@ public partial class MainViewModel
         if (EnableDailyNews)
         {
             var dailyNewsJobDetail = JobBuilder.Create<DailyNewsJob>().SetJobData(data).Build();
-            var dailyNewsTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(DailyNewsMoment).Build();
+            var dailyNewsTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(DailyNewsCron).Build();
 
             await _scheduler.ScheduleJob(dailyNewsJobDetail, dailyNewsTrigger);
         }
@@ -128,7 +152,7 @@ public partial class MainViewModel
         if (EnableWakaTime)
         {
             var wakaTimeJobDetail = JobBuilder.Create<WakaTimeJob>().SetJobData(data).Build();
-            var wakaTimeTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(WakaTimeMoment).Build();
+            var wakaTimeTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(WakaTimeCron).Build();
 
             await _scheduler.ScheduleJob(wakaTimeJobDetail, wakaTimeTrigger);
         }
@@ -136,7 +160,7 @@ public partial class MainViewModel
         if (EnableWeather)
         {
             var weatherJobDetail = JobBuilder.Create<WeatherJob>().SetJobData(data).Build();
-            var weatherTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(WeatherMoment).Build();
+            var weatherTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(WeatherCron).Build();
 
             await _scheduler.ScheduleJob(weatherJobDetail, weatherTrigger);
         }
@@ -144,7 +168,7 @@ public partial class MainViewModel
         if (EnableWhatTime)
         {
             var whatTimeJobDetail = JobBuilder.Create<WhatTimeJob>().SetJobData(data).Build();
-            var whatTimeTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(WhatTimeMoment).Build();
+            var whatTimeTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(WhatTimeCron).Build();
 
             await _scheduler.ScheduleJob(whatTimeJobDetail, whatTimeTrigger);
         }
@@ -173,11 +197,9 @@ public partial class MainViewModel
     /// Send a test message.
     /// </summary>
     [RelayCommand]
-    public async Task SendTestMessageAsync()
+    public void SendTestMessage()
     {
-        await _container
-            .Resolve<AutomateService>()
-            .SendTextMessageAsync("Wechat has been attached successfully.");
+        _queue.Enqueue(new TextMessage("Test message", "Wechat has been attached successfully."));
     }
 
     /// <summary>
@@ -199,16 +221,7 @@ public partial class MainViewModel
     public async Task SendWakaTimeMessageAsync()
     {
         var message = await _container.Resolve<WakaTimeService>().GetMessageAsync();
-        var result = await _container.Resolve<AutomateService>().SendTextMessageAsync(message);
-
-        if (result)
-        {
-            _logger.Information("Send the leaderboard message of Waka Time successfully.");
-        }
-        else
-        {
-            _logger.Error("Send the leaderboard message of Waka Time failed.");
-        }
+        _queue.Enqueue(new TextMessage("Waka Time", message));
     }
 
     /// <summary>
@@ -218,16 +231,7 @@ public partial class MainViewModel
     public async Task SendWeatherMessageAsync()
     {
         var message = await _container.Resolve<WeatherService>().GetMessageAsync();
-        var result = await _container.Resolve<AutomateService>().SendTextMessageAsync(message);
-
-        if (result)
-        {
-            _logger.Information("Send the weather message successfully.");
-        }
-        else
-        {
-            _logger.Error("Send the weather message failed.");
-        }
+        _queue.Enqueue(new TextMessage("Weather", message));
     }
 
     /// <summary>
@@ -244,15 +248,7 @@ public partial class MainViewModel
             return;
         }
 
-        var result = await _container.Resolve<AutomateService>().SendTextMessageAsync(message);
-        if (result)
-        {
-            _logger.Information("Send the Daily News message successfully.");
-        }
-        else
-        {
-            _logger.Error("Send the Daily News message failed.");
-        }
+        _queue.Enqueue(new TextMessage("Daily News", message));
     }
 
     /// <summary>
@@ -261,19 +257,10 @@ public partial class MainViewModel
     [RelayCommand]
     public async Task SendWhatTimeMessageAsync()
     {
-        var automateService = _container.Resolve<AutomateService>();
-
         var file = $"{DateTime.Now:hh}.gif";
         var path = await WhatTimeJob.CacheGif(file);
-        var result = await automateService.SendFileMessageAsync(path);
-        if (result)
-        {
-            _logger.Information("Send What Time is is message successfully.");
-        }
-        else
-        {
-            _logger.Error("Send What Time is is message failed.");
-        }
+
+        _queue.Enqueue(new FileMessage(file, path));
     }
 
     #region Notify
