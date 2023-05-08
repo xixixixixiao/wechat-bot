@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\weather_code.csv" />
     <Resource Include="Assets\wechat.png" />
     <Resource Include="Assets\WhatTime\01.gif" />
     <Resource Include="Assets\WhatTime\02.gif" />
@@ -39,6 +40,12 @@
     <Resource Include="Assets\WhatTime\10.gif" />
     <Resource Include="Assets\WhatTime\11.gif" />
     <Resource Include="Assets\WhatTime\12.gif" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
