@@ -2,7 +2,7 @@
 
 namespace WeChatBot.Models.Weathers;
 
-public class WeatherLive
+public class LiveWeather
 {
     [JsonPropertyName("province")]
     public string Province { get; set; }
