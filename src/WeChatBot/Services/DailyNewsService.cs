@@ -95,10 +95,20 @@ public class DailyNewsService
 
         const string header = "知晓天下事！";
         const string footer = "【微语】";
-        var first = article.IndexOf(header, StringComparison.Ordinal);
-        var last = article.LastIndexOf(footer, StringComparison.Ordinal);
 
-        return article[(first + header.Length)..last].Trim();
+        var first = article.IndexOf(header, StringComparison.Ordinal);
+        if (first > 0)
+        {
+            article = article[(first + header.Length)..].Trim();
+        }
+
+        var last = article.LastIndexOf(footer, StringComparison.Ordinal);
+        if (last > 0)
+        {
+            article = article[..last].Trim();
+        }
+
+        return article;
     }
 
     /// <summary>
