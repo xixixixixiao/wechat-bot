@@ -1,8 +1,8 @@
 ﻿<Window x:Class="WeChatBot.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mvvm="http://prismlibrary.com/"
         xmlns:viewModels="clr-namespace:WeChatBot.ViewModels"
@@ -11,7 +11,7 @@
         d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
         mvvm:ViewModelLocator.AutoWireViewModel="True"
         Icon="../Assets/wechat.png"
-        ResizeMode="NoResize" 
+        ResizeMode="NoResize"
         SizeToContent="Height"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d"
@@ -87,6 +87,15 @@
                     <CheckBox Content="Enable What Time is it" IsChecked="{Binding EnableWhatTime}" />
                     <TextBox Text="{Binding WhatTimeCron}" />
                     <Button Command="{Binding SendWhatTimeMessageCommand}" Content="Send Current Time" />
+                </StackPanel>
+            </Border>
+        </TabItem>
+        <TabItem Header="Anime">
+            <Border Padding="10">
+                <StackPanel>
+                    <CheckBox Content="Enable Anime" IsChecked="{Binding EnableAnime}" />
+                    <TextBox Text="{Binding AnimeCron}" />
+                    <Button Command="{Binding SendAnimeMessageCommand}" Content="Send Anime List" />
                 </StackPanel>
             </Border>
         </TabItem>

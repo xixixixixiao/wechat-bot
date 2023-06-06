@@ -86,6 +86,18 @@ public partial class MainViewModel
     private string _whatTimeCron;
 
     /// <summary>
+    /// Whether to enable sending a list of Anime.
+    /// </summary>
+    [ObservableProperty]
+    private bool _enableAnime;
+
+    /// <summary>
+    /// The cron when sending a list of Anime.
+    /// </summary>
+    [ObservableProperty]
+    private string _animeCron;
+
+    /// <summary>
     /// Initialize view model.
     /// </summary>
     [RelayCommand]
@@ -94,15 +106,18 @@ public partial class MainViewModel
         _queue.Start();
 
         var cronSection = _configuration.GetSection("Cron");
+        
         WakaTimeCron = cronSection.GetValue("WakaTime", "0 30 10 * * ? *");
         WeatherCron = cronSection.GetValue("Weather", "0 30 8,17 * * ? *");
         DailyNewsCron = cronSection.GetValue("DailyNews", "0 30 9 * * ? *");
         WhatTimeCron = cronSection.GetValue("WhatTime", "0 0 8-23 ? * MON,TUE,WED,THU,FRI *");
+        AnimeCron = cronSection.GetValue("Anime", "0 35 8,20 * * ? *");
 
         EnableWakaTime = _configuration.GetValue("EnableWakaTime", true);
         EnableWeather = _configuration.GetValue("EnableWeather", true);
         EnableDailyNews = _configuration.GetValue("EnableDailyNews", true);
         EnableWhatTime = _configuration.GetValue("EnableWhatTime", true);
+        EnableAnime = _configuration.GetValue("EnableAnime", true);
     }
 
     /// <summary>
@@ -135,6 +150,7 @@ public partial class MainViewModel
         }
 
         _scheduler = await new StdSchedulerFactory().GetScheduler();
+
         var dict = new Dictionary<string, object>
         {
             ["Container"] = _container,
@@ -171,6 +187,14 @@ public partial class MainViewModel
             var whatTimeTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(WhatTimeCron).Build();
 
             await _scheduler.ScheduleJob(whatTimeJobDetail, whatTimeTrigger);
+        }
+
+        if (EnableAnime)
+        {
+            var animeJobDetail = JobBuilder.Create<AnimeJob>().SetJobData(data).Build();
+            var animeTrigger = TriggerBuilder.Create().StartNow().WithCronSchedule(AnimeCron).Build();
+
+            await _scheduler.ScheduleJob(animeJobDetail, animeTrigger);
         }
 
         await _scheduler.Start();
@@ -212,6 +236,7 @@ public partial class MainViewModel
         await SendWeatherMessageAsync();
         await SendDailyNewsMessageAsync();
         await SendWhatTimeMessageAsync();
+        await SendAnimeMessageAsync();
     }
 
     /// <summary>
@@ -261,6 +286,17 @@ public partial class MainViewModel
         var path = await WhatTimeJob.CacheGif(file);
 
         _queue.Enqueue(new FileMessage(file, path));
+    }
+
+    /// <summary>
+    /// Send  Anime message.
+    /// </summary>
+    [RelayCommand]
+    public async Task SendAnimeMessageAsync()
+    {
+        var message = await _container.Resolve<AnimeService>().GetMessageAsync();
+
+        _queue.Enqueue(new TextMessage("Anime", message));
     }
 
     #region Notify

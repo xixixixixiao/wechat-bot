@@ -32,6 +32,7 @@ public partial class App
         containerRegistry.RegisterSingleton<DailyNewsService>();
         containerRegistry.RegisterSingleton<WakaTimeService>();
         containerRegistry.RegisterSingleton<WeatherService>();
+        containerRegistry.RegisterSingleton<AnimeService>();
         containerRegistry.RegisterSingleton<HttpClient>(() => new HttpClient(new HttpClientHandler
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
