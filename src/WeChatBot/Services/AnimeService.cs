@@ -1,5 +1,5 @@
-﻿using System;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -19,9 +19,12 @@ public class AnimeService
 
     public async Task<string> GetMessageAsync()
     {
+        var title = "📋今日份动漫更新列表💦" + Environment.NewLine + Environment.NewLine;
         var list = await GetListAsync();
 
-        return string.Join("\r\n\r\n", list.Select(item => $"🎬【{item.Name}】\r\n⏰{item.Update}—{item.Episode}"));
+        return title + string.Join(
+            Environment.NewLine + Environment.NewLine,
+            list.Select(item => $"🎬【{item.Name}】\r\n⏰{item.Update}—{item.Episode}"));
     }
 
     public async Task<List<Anime>> GetListAsync()
