@@ -34,17 +34,35 @@ public class AutomateService : IDisposable
 
     public FlaUI.Core.AutomationElements.TextBox GetMessageTextBox()
     {
-        return FlaUI.Core
-            .AutomationElements
-            .AutomationElementExtensions
-            .AsTextBox(_window.FindFirstDescendant(cf => cf.ByName("Enter")));
+        var sendButton = GetSendMessageButton();
+        var buttonParent = sendButton?.Parent;
+
+        for (var i = 0; i < 10; i++)
+        {
+            if (buttonParent is null) return null;
+
+            var textBox = FlaUI.Core.AutomationElements.AutomationElementExtensions
+                .AsTextBox(buttonParent.FindFirstDescendant(cf => cf.ByControlType(ControlType.Edit)));
+
+            if (textBox is null)
+            {
+                buttonParent = buttonParent.Parent;
+            }
+            else
+            {
+                return textBox;
+            }
+        }
+
+        return null;
     }
 
     public FlaUI.Core.AutomationElements.Button GetSendMessageButton()
     {
+        if (_window is null) return null;
         var element = _window
             .FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
-            .FirstOrDefault(control => control.Name == "sendBtn");
+            .FirstOrDefault(control => control.Name == "Send (S)");
         return FlaUI.Core
             .AutomationElements
             .AutomationElementExtensions
